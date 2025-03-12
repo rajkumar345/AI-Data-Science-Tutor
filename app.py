@@ -7,6 +7,12 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain.memory import ConversationBufferMemory  
 from langchain.chains import LLMChain  
 from langchain.prompts import PromptTemplate  
+import streamlit as st
+import os
+
+# Load API key from Streamlit secrets
+api_key = st.secrets["OPENAI_API_KEY"]
+
 
 # Load environment variables  
 load_dotenv()  
