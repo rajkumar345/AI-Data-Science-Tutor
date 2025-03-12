@@ -1,0 +1,6 @@
+streamlit
+python-dotenv
+pillow
+pytesseract
+langchain
+langchain-google-genai
