@@ -3,10 +3,15 @@ import streamlit as st
 from dotenv import load_dotenv  
 from PIL import Image  
 import pytesseract  
+import easyocr  
+import numpy as np  
 from langchain_google_genai import GoogleGenerativeAI  
 from langchain.memory import ConversationBufferMemory  
 from langchain.chains import LLMChain  
 from langchain.prompts import PromptTemplate  
+
+# Load API key from Streamlit secrets  
+api_key = st.secrets["GOOGLE_API_KEY"]
 
 # Load environment variables  
 load_dotenv()  
@@ -28,21 +33,25 @@ memory = st.session_state.memory
 # Streamlit UI  
 st.title("🧠 AI Data Science Tutor")  
 user_input = st.text_input("❓Ask your Data Science question:")  
-uploaded_file = st.file_uploader("📤Upload an image with your question:", type=["jpg", "jpeg", "png"])  
+uploaded_file = st.file_uploader("📤 Upload an image with your question:", type=["jpg", "jpeg", "png"])  
 
 # If image is uploaded, extract text using OCR  
 if uploaded_file is not None:  
     image = Image.open(uploaded_file)  
     st.image(image, caption="Uploaded Image", use_container_width=True)  
-    try:
-        extracted_text = pytesseract.image_to_string(image).strip()  
+    try:  
+        reader = easyocr.Reader(['en'])  
+        # 🔥 Convert PIL image to numpy array  
+        image_np = np.array(image)  
+        extracted_text = reader.readtext(image_np, detail=0)  
+
         if extracted_text:
-            user_input = extracted_text
-            st.success("✅ Text extracted from image successfully.")
-        else:
-            st.warning("⚠️ No readable text found in the image.")
-    except pytesseract.TesseractNotFoundError:
-        st.error("❌ Tesseract-OCR is not installed or not added to PATH.")  
+            user_input = " ".join(extracted_text)  
+            st.success("✅ Text extracted from image successfully.")  
+        else:  
+            st.warning("⚠️ No readable text found in the image.")  
+    except Exception as e:  
+        st.error(f"❌ OCR Error: {e}")  
 
 # Format conversation history  
 history = "\n".join([  
@@ -90,7 +99,7 @@ if st.button("Submit"):
         st.warning("⚠️ Please enter a question or upload an image.")  
 
 # Display conversation history in the sidebar  
-st.sidebar.subheader("🕒Conversation History")  
+st.sidebar.subheader("🕒 Conversation History")  
 for msg in memory.chat_memory.messages:  
     if msg.type == "human":  
         st.sidebar.write(f"**User:** {msg.content}")  
