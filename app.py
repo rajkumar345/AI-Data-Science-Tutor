@@ -40,6 +40,9 @@ uploaded_file = st.file_uploader("📤Upload an image with your question:", type
 if uploaded_file is not None:  
     image = Image.open(uploaded_file)  
     st.image(image, caption="Uploaded Image", use_container_width=True)  
+
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    
     try:
         extracted_text = pytesseract.image_to_string(image).strip()  
         if extracted_text:
