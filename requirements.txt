@@ -1,6 +1,9 @@
+numpy
+Pillow
+torch
+torchvision
+opencv-python-headless
+easyocr
 streamlit
-python-dotenv
-pillow
-pytesseract
 langchain
-langchain-google-genai
+python-dotenv
